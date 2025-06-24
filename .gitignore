@@ -1,0 +1,10 @@
+# Ignore Python virtual environments
+securenet/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
