@@ -1,31 +1,19 @@
-console.log("✅ Server file started");
-
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const phishingRoutes = require('./routes/phishingRoutes');
+const dotenv = require('dotenv');
+const phishingRoutes = require('./routes/phishingRoutes'); // 👈 Correct path
+
+dotenv.config();
 
 const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/secureNetDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+// Use the phishing routes under this path
+app.use('/api/phishing', phishingRoutes); // 👈 This must match what you're calling from Postman
 
-// Use phishing routes
-app.use('/api/phishing', phishingRoutes);
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error(err));
 
-// Test route to confirm server is running
-app.get("/", (req, res) => {
-  res.send("✅ SecureNet Phishing Server is Live!");
-});
-
-
-// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

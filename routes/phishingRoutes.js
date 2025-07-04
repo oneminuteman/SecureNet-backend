@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PhishingLog = require('../models/PhishingLog');
 
-// Log a phishing click
+// POST /api/phishing/click
 router.post('/click', async (req, res) => {
   try {
     const { user_id } = req.body;
@@ -10,34 +10,35 @@ router.post('/click', async (req, res) => {
     await log.save();
     res.status(201).json({ message: 'Click logged.' });
   } catch (err) {
-    console.error('Error in /click:', err);
+    console.error(err);
     res.status(500).json({ error: 'Server error.' });
   }
 });
 
-// Log fake credential submission
+// POST /api/phishing/submit
 router.post('/submit', async (req, res) => {
   try {
     const { user_id } = req.body;
-    await PhishingLog.findOneAndUpdate(
-      { user_id, clicked: true },
+    const updated = await PhishingLog.findOneAndUpdate(
+      { user_id },
       { submitted_credentials: true },
       { new: true }
     );
+    if (!updated) return res.status(404).json({ error: 'User not found' });
     res.status(200).json({ message: 'Credential submission logged.' });
   } catch (err) {
-    console.error('Error in /submit:', err);
+    console.error(err);
     res.status(500).json({ error: 'Server error.' });
   }
 });
 
-// Get all phishing logs
+// GET /api/phishing/logs
 router.get('/logs', async (req, res) => {
   try {
     const logs = await PhishingLog.find();
     res.status(200).json(logs);
   } catch (err) {
-    console.error('Error in /logs:', err);
+    console.error(err);
     res.status(500).json({ error: 'Could not fetch logs.' });
   }
 });
