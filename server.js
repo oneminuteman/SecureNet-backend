@@ -1,15 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const phishingRoutes = require('./routes/phishingRoutes'); // 👈 Correct path
+const cors = require('cors'); // 👈 ADD THIS
+const phishingRoutes = require('./routes/phishingRoutes');
 
 dotenv.config();
 
 const app = express();
+app.use(cors()); // 👈 AND THIS
 app.use(express.json());
 
-// Use the phishing routes under this path
-app.use('/api/phishing', phishingRoutes); // 👈 This must match what you're calling from Postman
+app.use('/api/phishing', phishingRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
