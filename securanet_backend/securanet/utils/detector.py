@@ -1,3 +1,4 @@
+# securanet/utils/detector.py
 
 import os
 from django.conf import settings
@@ -5,6 +6,7 @@ from django.conf import settings
 from .crawler import capture_site
 from .compare import get_html_signature, html_similarity
 from .domain_check import get_domain_reputation
+from .virustotal import check_virustotal  # ✅ VirusTotal check
 from securanet.models import KnownSite
 
 
@@ -13,8 +15,9 @@ def detect_clone(candidate_url):
     Detects if a candidate website is a clone of a known legitimate one.
     Applies detection using:
     ✅ 1. Domain reputation
-    ✅ 2. HTML structure similarity
-    ✅ 3. Visual screenshot capture
+    ✅ 2. VirusTotal scan
+    ✅ 3. HTML structure similarity
+    ✅ 4. Screenshot capture
     """
 
     result = {
@@ -32,18 +35,31 @@ def detect_clone(candidate_url):
             "reason": "Bad domain reputation",
             "method": "domain",
         })
-        # Still try to get a screenshot for reporting
         screenshot_path = capture_site(candidate_url, save_dir="screenshots")
         if screenshot_path:
             result["screenshot"] = screenshot_path
         return result
 
-    # ✅ STEP 2: Capture Screenshot
+    # ✅ STEP 2: VirusTotal scan
+    vt_result = check_virustotal(candidate_url)
+    result["virustotal"] = vt_result
+    if vt_result["status"] == "flagged":
+        result.update({
+            "status": "flagged",
+            "reason": "VirusTotal flagged the site",
+            "method": "virustotal",
+        })
+        screenshot_path = capture_site(candidate_url, save_dir="screenshots")
+        if screenshot_path:
+            result["screenshot"] = screenshot_path
+        return result
+
+    # ✅ STEP 3: Screenshot capture
     screenshot_path = capture_site(candidate_url, save_dir="screenshots")
     if screenshot_path:
         result["screenshot"] = screenshot_path
 
-    # ✅ STEP 3: Get candidate HTML structure
+    # ✅ STEP 4: HTML Signature Extraction
     candidate_signature = get_html_signature(candidate_url)
     if not candidate_signature:
         result.update({
@@ -52,7 +68,7 @@ def detect_clone(candidate_url):
         })
         return result
 
-    # ✅ STEP 4: Compare with known legitimate sites
+    # ✅ STEP 5: Compare against known legitimate sites
     for legit in KnownSite.objects.all():
         score = html_similarity(candidate_signature, legit.html_signature or "")
         if score > 0.85:
@@ -63,6 +79,6 @@ def detect_clone(candidate_url):
             })
             return result
 
-    # ✅ STEP 5: No issues found
+    # ✅ STEP 6: All clear
     result["message"] = "No significant similarity detected."
     return result

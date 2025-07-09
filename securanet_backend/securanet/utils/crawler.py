@@ -1,10 +1,10 @@
-
 import os
 import time
 from urllib.parse import urlparse
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from django.conf import settings
 
@@ -30,7 +30,8 @@ def capture_site(url, save_dir="screenshots"):
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    # ✅ Correct way to initialize Chrome with webdriver-manager and options
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     try:
         driver.set_window_size(1280, 720)
@@ -45,3 +46,4 @@ def capture_site(url, save_dir="screenshots"):
         return None
     finally:
         driver.quit()
+
