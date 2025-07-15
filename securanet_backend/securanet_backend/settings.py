@@ -1,14 +1,14 @@
-
-# securanet_backend/settings.py
-
+import environ
+env = environ.Env()
+environ.Env.read_env()
 import os
 from pathlib import Path
 
-# === VirusTotal API Key ===
-VT_API_KEY = os.getenv("VT_API_KEY", "")  # ✅ You can set this in .env or your OS env variables
-
 # === Base Directory ===
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# === VirusTotal API Key ===
+VT_API_KEY = os.getenv("VT_API_KEY", "")  # ✅ Set this in your .env file or system env
 
 # === Security Settings ===
 SECRET_KEY = 'django-insecure-dj(dw#z+go3mgp*4&(0ztb!66f60x-%u2j&ot0%h3nrbmf^b8+'
@@ -23,13 +23,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',     # ✅ For frontend-backend connection
-    'securanet',        # ✅ Your main app
+    'corsheaders',     # ✅ Enables CORS for frontend communication
+    'securanet',        # ✅ Your custom app
 ]
 
 # === Middleware ===
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # ✅ CORS Middleware should be high
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -41,7 +41,7 @@ MIDDLEWARE = [
 
 # === CORS Settings ===
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # ✅ Frontend (Vite) URL
+    "http://localhost:5173",  # ✅ Allow your frontend (React + Vite)
 ]
 
 # === URL Configuration ===
@@ -93,7 +93,14 @@ STATIC_URL = '/static/'
 
 # === Media Files (for screenshots, etc.) ===
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'securanet_backend', 'media')
 # === Auto Field Default ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+
+GOOGLE_SAFE_BROWSING_API_KEY = 'AIzaSyC8u8EJMhDqJK6bxAW10TbRwhUF8XNZIl0'
+
+WHOISXML_API_KEY = 'at_svdehVK30GpXd1Ba5V8uz5BXhScje'
+
+

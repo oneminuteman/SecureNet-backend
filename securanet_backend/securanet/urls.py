@@ -1,10 +1,20 @@
 from django.urls import path
-from . import views
+from .views import (
+    home_view,
+    capture_view,
+    compare_sites_view,
+    detect_view,
+    recent_scans,
+    test_whoisxml,
+)
 
 urlpatterns = [
-     path('', views.home_view, name='home'),
-    path('capture/', views.capture_view, name='capture_view'),
-    path('compare/', views.compare_sites_view, name='compare_sites_view'),
-    path('detect/', views.detect_view, name='detect_clone'),
+    path('', home_view),
+    path('capture/', capture_view),
+    path('compare/', compare_sites_view),
+    path('detect/', detect_view),
+    path('recent-scans/', recent_scans),
+    path('test-whoisxml/', test_whoisxml),  # Optional
 ]
+
 
