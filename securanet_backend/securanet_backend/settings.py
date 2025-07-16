@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&bp4dlyzt6+)27qy-0)pf2_nmbfsjjj$z+4stvm9%i-j$6b0-t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 
 # Application definition
@@ -40,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'myapp',
     'corsheaders',
+    'myapp.file_monitor'
 ]
 
 MIDDLEWARE = [
@@ -52,6 +56,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -126,3 +139,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Add CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+ASGI_APPLICATION = 'securanat_backend.routing.application'
+# OpenAI settings
+OPENAI_API_KEY = config('OPENAI_API_KEY')
+
+# File monitor settings
+WATCH_FOLDER = config('WATCH_FOLDER')
+DEDUP_WINDOW_SECONDS = config('DEDUP_WINDOW_SECONDS', default=5, cast=int)
+IGNORE_TEMP_FILES = config('IGNORE_TEMP_FILES', default=True, cast=bool)
+IGNORE_DIRECTORIES = config('IGNORE_DIRECTORIES', default=True, cast=bool)

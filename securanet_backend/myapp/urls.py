@@ -1,6 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import FileChangeLogListView
 
+router = DefaultRouter()
+router.register(r'file-logs', FileChangeLogListView, basename='filelog')
+
 urlpatterns = [
-    path('file-logs/', FileChangeLogListView.as_view(), name='file-logs'),
+    path('', include(router.urls)),
 ]

@@ -1,48 +1,49 @@
-import hashlib
-import uuid
 from django.db import models
-from django.utils import timezone
+
+class FileAnalysis(models.Model):
+    file_path = models.TextField()
+    content_hash = models.CharField(max_length=64)
+    risk_score = models.FloatField()
+    risk_level = models.CharField(max_length=20)
+    analysis_result = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['file_path']),
+            models.Index(fields=['risk_level']),
+            models.Index(fields=['created_at']),
+        ]
 
 class FileChangeLog(models.Model):
-    RISK_LEVELS = [
-        ('safe', 'Safe'),
-        ('low', 'Low Risk'),
-        ('medium', 'Medium Risk'),
-        ('high', 'High Risk'),
-        ('critical', 'Critical Risk'),
-    ]
-    
     CHANGE_TYPES = [
         ('created', 'Created'),
         ('modified', 'Modified'),
         ('deleted', 'Deleted'),
-        ('moved', 'Moved'),
+        ('renamed', 'Renamed'),
     ]
     
-    dedup_key = models.CharField(max_length=255, unique=True, db_index=True)
+    RISK_LEVELS = [
+        ('safe', 'Safe'),
+        ('suspicious', 'Suspicious'),
+        ('dangerous', 'Dangerous'),
+    ]
+
     file_path = models.TextField()
     change_type = models.CharField(max_length=20, choices=CHANGE_TYPES)
-    risk_level = models.CharField(max_length=20, choices=RISK_LEVELS, default='safe')
-    recommendation = models.TextField(blank=True, null=True)
-    ai_analysis = models.JSONField(default=dict, blank=True)
-    file_size = models.BigIntegerField(null=True, blank=True)
-    file_extension = models.CharField(max_length=10, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    analyzed = models.BooleanField(default=False)
-    
+    analysis = models.ForeignKey(FileAnalysis, on_delete=models.CASCADE, null=True, blank=True)
+    metadata = models.JSONField(default=dict)
+    dedup_key = models.CharField(max_length=32, unique=True, null=True)
+    recommendation = models.TextField(null=True, blank=True)  # Added this field
+    risk_level = models.CharField(max_length=20, choices=RISK_LEVELS, default='safe')  # Added this field
+
     class Meta:
-        ordering = ['-timestamp']
         indexes = [
-            models.Index(fields=['risk_level', 'timestamp']),
-            models.Index(fields=['change_type', 'timestamp']),
+            models.Index(fields=['file_path', 'timestamp']),
+            models.Index(fields=['change_type']),
+            models.Index(fields=['risk_level']),
         ]
 
-    def save(self, *args, **kwargs):
-        if not self.dedup_key:
-            # Generate unique dedup key based on file path and timestamp
-            unique_string = f"{self.file_path}_{self.change_type}_{timezone.now().timestamp()}"
-            self.dedup_key = hashlib.md5(unique_string.encode()).hexdigest()
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return f"{self.change_type.upper()}: {self.file_path} [{self.risk_level}]"
+        return f"{self.change_type} - {self.file_path} ({self.timestamp})"
