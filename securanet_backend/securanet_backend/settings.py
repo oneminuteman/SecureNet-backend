@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config, Csv
 import os
+import yaml
+import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,8 +150,31 @@ ASGI_APPLICATION = 'securanat_backend.routing.application'
 # OpenAI settings
 OPENAI_API_KEY = config('OPENAI_API_KEY')
 
+
+# Load monitor configuration
+CONFIG_FILE = os.path.join(BASE_DIR, 'monitor_config.json')
+if os.path.exists(CONFIG_FILE):
+    with open(CONFIG_FILE, 'r') as f:
+        MONITOR_CONFIG = json.load(f)
+else:
+    MONITOR_CONFIG = {
+        'mode': 'custom',
+        'paths': [os.path.expanduser('~/Documents')],
+        'excludes': [
+            'C:/Windows',
+            'C:/Program Files',
+            'C:/Program Files (x86)'
+        ]
+    }
+
+# Set watch folder from config (use first path or default)
+WATCH_FOLDER = os.environ.get(
+    'WATCH_FOLDER',
+    MONITOR_CONFIG['paths'][0] if MONITOR_CONFIG['paths'] else os.path.expanduser('~/Documents')
+)
+
 # File monitor settings
-WATCH_FOLDER = config('WATCH_FOLDER')
+# WATCH_FOLDER = config('WATCH_FOLDER')
 DEDUP_WINDOW_SECONDS = config('DEDUP_WINDOW_SECONDS', default=5, cast=int)
 IGNORE_TEMP_FILES = config('IGNORE_TEMP_FILES', default=True, cast=bool)
 IGNORE_DIRECTORIES = config('IGNORE_DIRECTORIES', default=True, cast=bool)

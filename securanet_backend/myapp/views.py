@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import FileChangeLog, FileAnalysis
 from .serializers import FileChangeLogSerializer, FileChangeLogSummarySerializer
-from .file_monitor.ai_analyzer.analyzer import SecurityAnalyzer
+from .file_monitor.ai_analyzer.simple_analyzer import SecurityAnalyzer
 from rest_framework.decorators import action
 
 class FileChangeLogListView(viewsets.ModelViewSet):

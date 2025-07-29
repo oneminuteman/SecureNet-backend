@@ -1,5 +1,5 @@
 from celery import shared_task
-from .ai_analyzer.analyzer import AIFileAnalyzer
+from .ai_analyzer.simple_analyzer import AIFileAnalyzer
 from ..models import FileChangeLog, FileAnalysis
 
 @shared_task

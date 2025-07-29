@@ -21,3 +21,6 @@ python-decouple>=3.8
 
 # Enhanced development shell
 ipython>=8.20.0
+
+click==8.1.3
+pyyaml==6.0.1

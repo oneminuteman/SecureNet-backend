@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from myapp.file_monitor.watcher import FileMonitor
 import time
 import os
+from django.conf import settings
 
 class Command(BaseCommand):
     help = 'Starts the file monitoring system'
@@ -10,7 +11,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--path',
             type=str,
-            default='C:/Users/ADMIN/Documents',
+            default=settings.WATCH_FOLDER,
             help='Path to monitor'
         )
 
