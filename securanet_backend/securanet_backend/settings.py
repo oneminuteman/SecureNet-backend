@@ -1,19 +1,37 @@
-import environ
-env = environ.Env()
-environ.Env.read_env()
+
 import os
 from pathlib import Path
+import environ
+from datetime import timedelta
+
+# === Env Setup ===
+env = environ.Env()
+environ.Env.read_env()
 
 # === Base Directory ===
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# === VirusTotal API Key ===
-VT_API_KEY = os.getenv("VT_API_KEY", "")  # ✅ Set this in your .env file or system env
-
 # === Security Settings ===
 SECRET_KEY = 'django-insecure-dj(dw#z+go3mgp*4&(0ztb!66f60x-%u2j&ot0%h3nrbmf^b8+'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# === CSRF & Cookie Settings for Local Frontend ===
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+CSRF_COOKIE_NAME = "csrftoken"
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False  # Set to True in production
+CSRF_COOKIE_SECURE = False     # Set to True in production
+
+# === CORS Settings ===
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React/Vite dev server
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # === Installed Apps ===
 INSTALLED_APPS = [
@@ -23,13 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',     # ✅ Enables CORS for frontend communication
-    'securanet',        # ✅ Your custom app
+    'corsheaders',       # ✅ Required for cross-origin
+    'securanet',          # ✅ Your app
 ]
 
 # === Middleware ===
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # ✅ CORS Middleware should be high
+    'corsheaders.middleware.CorsMiddleware',  # ✅ Must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -37,11 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-# === CORS Settings ===
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # ✅ Allow your frontend (React + Vite)
 ]
 
 # === URL Configuration ===
@@ -66,7 +79,7 @@ TEMPLATES = [
 # === WSGI ===
 WSGI_APPLICATION = 'securanet_backend.wsgi.application'
 
-# === Database ===
+# === Database (SQLite) ===
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -74,7 +87,7 @@ DATABASES = {
     }
 }
 
-# === Password Validators ===
+# === Password Validation ===
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -82,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# === Localization ===
+# === Internationalization ===
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -91,16 +104,14 @@ USE_TZ = True
 # === Static Files ===
 STATIC_URL = '/static/'
 
-# === Media Files (for screenshots, etc.) ===
+# === Media Files ===
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'securanet_backend', 'media')
-# === Auto Field Default ===
+
+# === Default Auto Field ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# settings.py
-
-GOOGLE_SAFE_BROWSING_API_KEY = 'AIzaSyC8u8EJMhDqJK6bxAW10TbRwhUF8XNZIl0'
-
-WHOISXML_API_KEY = 'at_svdehVK30GpXd1Ba5V8uz5BXhScje'
-
-
+# === API Keys (Env or Inline) ===
+VT_API_KEY = os.getenv("VT_API_KEY", "")  # VirusTotal
+GOOGLE_SAFE_BROWSING_API_KEY = os.getenv("GOOGLE_SAFE_BROWSING_API_KEY", "AIzaSyC8u8EJMhDqJK6bxAW10TbRwhUF8XNZIl0")
+WHOISXML_API_KEY = os.getenv("WHOISXML_API_KEY", "at_svdehVK30GpXd1Ba5V8uz5BXhScje")

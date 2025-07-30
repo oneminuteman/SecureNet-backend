@@ -1,15 +1,78 @@
+
 import os
+import json
 from urllib.parse import urlparse
-from django.http import JsonResponse, HttpResponse
-from django.core.files import File
+
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.core.files import File
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 from .utils.crawler import capture_site
 from .utils.compare import get_html_signature, html_similarity
 from .utils.detector import detect_clone
 from .utils.domain_check import get_domain_reputation
 from .models import SuspiciousSite, ScanLog
+
+# ✅ CSRF token getter for frontend
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({"csrfToken": request.META.get("CSRF_COOKIE")})
+
+
+# ✅ User signup
+@csrf_exempt
+def signup_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        username = data.get("username")
+        password = data.get("password")
+
+        if not username or not password:
+            return JsonResponse({"error": "Missing username or password"}, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({"error": "Username already taken"}, status=400)
+
+        user = User.objects.create_user(username=username, password=password)
+        return JsonResponse({"message": "User created successfully"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+# ✅ Login view
+@csrf_exempt
+def login_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        username = data.get("username")
+        password = data.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return JsonResponse({"message": "Login successful"})
+        else:
+            return JsonResponse({"error": "Invalid credentials"}, status=400)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+# ✅ Logout view
+def logout_view(request):
+    logout(request)
+    return JsonResponse({"message": "Logged out successfully"})
 
 
 # ✅ 1. Health check route
@@ -69,7 +132,7 @@ def detect_view(request):
     detection_method = result.get("method", "unknown")
     screenshot_path = result.get("screenshot")
 
-    # Store full screenshot URL if available
+    # Full screenshot URL
     if screenshot_path:
         full_path = os.path.join(settings.MEDIA_ROOT, screenshot_path)
         if os.path.exists(full_path):
@@ -91,7 +154,7 @@ def detect_view(request):
         screenshot=result.get("screenshot")
     )
 
-    # ✅ Save to SuspiciousSite only if flagged
+    # ✅ Save to SuspiciousSite if flagged
     if result.get("status") == "flagged":
         if screenshot_path and os.path.exists(full_path):
             with open(full_path, 'rb') as f:
@@ -116,7 +179,7 @@ def detect_view(request):
     return JsonResponse(result)
 
 
-# ✅ 5. Recent scans API (for frontend)
+# ✅ 5. Recent scans API (for frontend log viewer)
 @csrf_exempt
 def recent_scans(request):
     logs = ScanLog.objects.order_by('-created_at')[:10]
@@ -137,9 +200,8 @@ def recent_scans(request):
     ], safe=False)
 
 
-# ✅ 6. Test WhoisXML reputation API manually
+# ✅ 6. WhoisXML API Test (Domain Reputation)
 def test_whoisxml(request):
     domain = request.GET.get("domain", "example.com")
     rep = get_domain_reputation(domain)
     return JsonResponse({"domain": domain, "reputation": rep})
-

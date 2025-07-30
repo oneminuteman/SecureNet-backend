@@ -6,9 +6,17 @@ from .views import (
     detect_view,
     recent_scans,
     test_whoisxml,
+    get_csrf_token,
+    signup_view,
+    login_view,
+    logout_view,
 )
 
 urlpatterns = [
+     path("auth/csrf/", get_csrf_token),
+    path("auth/signup/", signup_view),
+    path("auth/login/", login_view),
+    path("auth/logout/", logout_view),
     path('', home_view),
     path('capture/', capture_view),
     path('compare/', compare_sites_view),

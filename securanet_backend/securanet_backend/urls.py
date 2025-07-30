@@ -7,7 +7,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),              # Django admin
+    path('admin/', admin.site.urls),
+    path('api/', include('securanet.urls')),                            # Django admin
     path('', include('securanet.urls')),          # Main app routes
 ]
 
