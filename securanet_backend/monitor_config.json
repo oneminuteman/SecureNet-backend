@@ -1,0 +1,12 @@
+{
+  "mode": "custom",
+  "paths": [
+    "C:\\Users\\ADMIN\\Documents",
+    "C:\\Users\\ADMIN\\Downloads"
+  ],
+  "excludes": [
+    "C:/Windows",
+    "C:/Program Files",
+    "C:/Program Files (x86)"
+  ]
+}

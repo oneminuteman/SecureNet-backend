@@ -8,10 +8,15 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('securanet.urls')),                            # Django admin
-    path('', include('securanet.urls')),          # Main app routes
+
+    # API routes
+    path('api/securanet/', include('securanet.urls')),
+    path('api/myapp/', include('myapp.urls')),
+
+    # Optional main route fallback (can be used for frontend rendering or redirection)
+    path('', include('securanet.urls')),
 ]
 
-# ✅ Serve media files like screenshots in development
+# Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
