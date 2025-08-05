@@ -1,2 +1,0 @@
-[console_scripts]
-securenet = monitor.cli:cli
