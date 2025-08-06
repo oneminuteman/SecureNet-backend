@@ -2,8 +2,12 @@
   "mode": "custom",
   "paths": [
     "C:\\Users\\ADMIN/Documents",
-    "C:\\Users\\ADMIN/Downloads",
     "C:\\Users\\ADMIN/Pictures"
   ],
-  "last_updated": "2025-08-05 16:55:20"
+  "last_updated": "2025-08-06 02:12:56",
+  "excludes": [
+    "C:/Windows",
+    "C:/Program Files",
+    "C:/Program Files (x86)"
+  ]
 }

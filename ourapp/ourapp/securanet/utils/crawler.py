@@ -17,8 +17,12 @@ def capture_site(url, save_dir="screenshots"):
     """
 
     # Ensure screenshot directory exists inside MEDIA_ROOT
-    screenshot_root = os.path.join(settings.MEDIA_ROOT, save_dir)
-    os.makedirs(screenshot_root, exist_ok=True)
+    try:
+        screenshot_root = os.path.join(settings.MEDIA_ROOT, save_dir)
+        os.makedirs(screenshot_root, exist_ok=True)
+    except Exception as e:
+        print(f"[Error] Failed to create screenshot directory: {e}")
+        return f"{settings.MEDIA_URL}{save_dir}/{filename}"
 
     # Parse domain from URL and sanitize for filename
     parsed_url = urlparse(url)

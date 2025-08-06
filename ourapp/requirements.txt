@@ -8,9 +8,9 @@ python-decouple==3.8
 gunicorn==21.2.0
 whitenoise==6.5.0
 
-# Database - SQLite is included with Django and works out of the box
-# For PostgreSQL (optional - comment out if not needed):
-# psycopg2-binary==2.9.7
+# Database - using SQLite by default
+# If you need PostgreSQL later, use:
+# psycopg2-binary==2.9.9
 
 # File monitoring dependencies
 watchdog==3.0.0
@@ -21,13 +21,14 @@ python-whois==0.8.0
 beautifulsoup4==4.12.2
 requests==2.31.0
 
-# Selenium for screenshots (chrome/selenium setup required)
+# Selenium for screenshots
 selenium==4.15.2
 webdriver-manager==4.0.1
 
-# HTML processing
-# lxml==4.9.3
+# HTML processing - Using pure Python alternatives 
+# Instead of lxml, which requires C compilation
 html5lib==1.1
+cssselect==1.2.0
 
 # Security and analysis
 cryptography==41.0.5
