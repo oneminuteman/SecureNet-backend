@@ -341,18 +341,4 @@ if __name__ == "__main__":
     # Save enhanced dataset path to config
     with open("dataset_config.json", "w") as f:
         json.dump({"enhanced_dataset": ENHANCED_DATASET_PATH}, f)
-    # import argparse
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--threshold", type=float, default=0.4)
-    # args = parser.parse_args()
-    # classifier, classify_func = main()
-    # result = classify_func("Enter your details to claim reward!", threshold=args.threshold)
-    # print(result)
-    # Optional: enable CLI via argparse
-    # import argparse
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--threshold", type=float, default=0.4)
-    # args = parser.parse_args()
-    # classifier, classify_func = main()
-    # result = classify_func("Enter your details to claim reward!", threshold=args.threshold)
-    # print(result)
+ 
