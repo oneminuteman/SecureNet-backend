@@ -8,3 +8,4 @@ __pycache__/
 env/
 venv/
 ENV/
+securanet_backend/securanet_backend/phishing_model.zip
