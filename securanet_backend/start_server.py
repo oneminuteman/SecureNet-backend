@@ -88,7 +88,7 @@ def main():
         processes.append(monitor_process)
         
         # Calculate full scan time
-        scan_time = datetime.datetime.now() + datetime.timedelta(minutes=5)
+        scan_time = datetime.datetime.now() + datetime.timedelta(minutes=2)
         
         print("\n✅ SecureNet is running successfully!")
         print(f"API: http://127.0.0.1:8000/api/")

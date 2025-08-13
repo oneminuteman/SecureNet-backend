@@ -18,7 +18,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--delay-full-scan',
             type=int,
-            default=5,
+            default=2,
             help='Delay full system scan by specified minutes after startup'
         )
         parser.add_argument(
