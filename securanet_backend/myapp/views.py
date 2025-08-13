@@ -15,6 +15,12 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from rest_framework.pagination import PageNumberPagination
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required, permission_required
+import subprocess
+import sys
+from .file_monitor.watcher import get_monitor_thread, stop_monitor, ensure_single_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -341,3 +347,267 @@ def get_statistics(request):
             'error': str(e),
             'status': 'failed'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def get_config_file_path():
+    """Get the path to the monitor_config.json file"""
+    return os.path.join(settings.BASE_DIR, 'monitor_config.json')
+
+@csrf_protect
+def monitor_status(request):
+    """Get the current status of the file monitor"""
+    monitor = get_monitor_thread()
+    is_running = monitor is not None and monitor.is_alive()
+    
+    monitored_paths = []
+    if is_running and hasattr(monitor, 'paths'):
+        for path in monitor.paths:
+            monitored_paths.append({
+                'path': path,
+                'exists': os.path.exists(path)
+            })
+    
+    # Get config
+    config_file = get_config_file_path()
+    config = {}
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+        except:
+            pass
+    
+    return JsonResponse({
+        'status': 'running' if is_running else 'stopped',
+        'monitored_paths': monitored_paths,
+        'config': config,
+        'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+@csrf_protect
+def start_monitor(request):
+    """Start the file monitor"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+        
+    monitor = get_monitor_thread()
+    if monitor and monitor.is_alive():
+        return JsonResponse({
+            'success': False,
+            'message': 'Monitor is already running'
+        })
+    
+    try:
+        monitor = ensure_single_monitor()
+        if monitor and monitor.is_alive():
+            return JsonResponse({
+                'success': True,
+                'message': 'Monitor started successfully'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to start monitor'
+            })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error starting monitor: {str(e)}'
+        })
+
+@csrf_protect
+def stop_monitor_view(request):
+    """Stop the file monitor"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+        
+    if stop_monitor():
+        return JsonResponse({
+            'success': True,
+            'message': 'Monitor stopped successfully'
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'message': 'No monitor was running'
+        })
+
+@csrf_protect
+def restart_monitor(request):
+    """Restart the file monitor"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+        
+    stop_monitor()
+    try:
+        monitor = ensure_single_monitor()
+        if monitor and monitor.is_alive():
+            return JsonResponse({
+                'success': True,
+                'message': 'Monitor restarted successfully'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to restart monitor'
+            })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error restarting monitor: {str(e)}'
+        })
+
+@csrf_protect
+def update_directories(request):
+    """Update the monitored directories"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+    
+    try:
+        data = json.loads(request.body)
+        directories = data.get('directories', [])
+        
+        if not directories:
+            return JsonResponse({
+                'success': False,
+                'message': 'No directories provided'
+            })
+        
+        # Validate directories
+        valid_directories = []
+        invalid_directories = []
+        for directory in directories:
+            if os.path.exists(directory) and os.path.isdir(directory):
+                valid_directories.append(directory)
+            else:
+                invalid_directories.append(directory)
+        
+        if not valid_directories:
+            return JsonResponse({
+                'success': False,
+                'message': 'No valid directories provided'
+            })
+        
+        # Update config
+        config_file = get_config_file_path()
+        config = {}
+        
+        if os.path.exists(config_file):
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+        
+        config['paths'] = valid_directories
+        config['last_updated'] = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=2)
+        
+        # Restart monitor if it was running
+        was_running = get_monitor_thread() is not None and get_monitor_thread().is_alive()
+        if was_running:
+            stop_monitor()
+            ensure_single_monitor()
+        
+        message = 'Directories updated successfully'
+        if invalid_directories:
+            message += f". Warning: {len(invalid_directories)} invalid directories were skipped."
+        
+        return JsonResponse({
+            'success': True,
+            'message': message,
+            'directories': valid_directories,
+            'invalid_directories': invalid_directories,
+            'monitor_restarted': was_running
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error updating directories: {str(e)}'
+        })
+
+@csrf_protect
+def run_scan(request):
+    """Run an immediate scan"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+        
+    monitor = get_monitor_thread()
+    if not monitor or not monitor.is_alive():
+        return JsonResponse({
+            'success': False,
+            'message': 'Monitor is not running'
+        })
+    
+    try:
+        if hasattr(monitor, 'run_full_scan'):
+            monitor.run_full_scan()
+            return JsonResponse({
+                'success': True,
+                'message': 'Scan started successfully'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Monitor does not support full scan'
+            })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error starting scan: {str(e)}'
+        })
+
+@csrf_protect
+def set_scan_interval(request):
+    """Set the scan interval in minutes"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+        
+    try:
+        data = json.loads(request.body)
+        minutes = data.get('minutes', None)
+        
+        if minutes is None:
+            return JsonResponse({
+                'success': False,
+                'message': 'Minutes parameter is required'
+            })
+            
+        try:
+            minutes = int(minutes)
+            if minutes < 1:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Interval must be at least 1 minute'
+                })
+        except (ValueError, TypeError):
+            return JsonResponse({
+                'success': False,
+                'message': 'Interval must be a valid number'
+            })
+        
+        # Update config
+        config_file = get_config_file_path()
+        config = {}
+        
+        if os.path.exists(config_file):
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+        
+        config['full_scan_interval_minutes'] = minutes
+        config['last_updated'] = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=2)
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Scan interval updated to {minutes} minutes',
+            'minutes': minutes
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error setting scan interval: {str(e)}'
+        })
