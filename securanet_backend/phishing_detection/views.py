@@ -7,7 +7,7 @@ from transformers import pipeline, AutoModelForSequenceClassification, AutoToken
 from pathlib import Path
 
 # ✅ Fix: Use Path and resolve to POSIX style for compatibility
-MODEL_PATH = Path(__file__).resolve().parent.parent / "phishing_model"
+MODEL_PATH = Path(__file__).resolve().parent / "phishing_model"
 MODEL_PATH = MODEL_PATH.as_posix()  # ✅ Converts to forward-slash format
 
 # ✅ Load local tokenizer and model
