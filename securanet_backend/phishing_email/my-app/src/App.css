@@ -1,0 +1,131 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modern main background */
+.main-bg {
+  background: linear-gradient(120deg, #f0f4ff 0%, #e0e7ff 100%);
+}
+
+/* Landing header styles */
+.landing-header {
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  border-bottom-left-radius: 32px;
+  border-bottom-right-radius: 32px;
+  box-shadow: 0 8px 32px rgba(99,102,241,0.10);
+  margin-bottom: 2rem;
+}
+
+.landing-header h1 {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(30,58,138,0.10);
+}
+
+.landing-header .badge {
+  font-size: 1rem;
+  padding: 0.7em 1.5em;
+  border-radius: 1em;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Tooltip override for accessibility */
+[data-bs-toggle="tooltip"] {
+  cursor: help;
+  outline: none;
+}
+
+/* Accessibility: Visually hidden utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+/* Accessibility: Focus outline for keyboard navigation */
+:focus-visible {
+  outline: 3px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Responsive tweaks for main card and header */
+@media (max-width: 600px) {
+  .landing-header {
+    padding: 1.2rem 0.2rem;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  .card {
+    border-radius: 8px !important;
+    margin-bottom: 1.2rem !important;
+  }
+  .card-body {
+    padding: 1.2rem !important;
+  }
+  .btn-lg {
+    font-size: 1rem !important;
+    padding: 0.7em 1em !important;
+  }
+  .alert {
+    font-size: 1rem !important;
+    padding: 0.7em 1em !important;
+  }
+}
+
+/* Ensure color contrast for text on gradients */
+.landing-header, .landing-header h1, .landing-header .badge {
+  text-shadow: 0 1px 4px rgba(30,58,138,0.10);
+}
+
+/* Improve contrast for form labels and help text */
+.form-label, .form-text {
+  color: #1e293b !important;
+}
+
+td, th {
+  word-break: break-all !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+}
