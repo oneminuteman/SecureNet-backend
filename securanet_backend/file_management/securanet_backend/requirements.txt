@@ -1,0 +1,119 @@
+# SecureNet - Installation Guide
+# Current Date: 2025-08-05
+# Author: SecureNet Team
+
+===============================
+## PREREQUISITES
+===============================
+
+1. Node.js (v14.0.0 or higher)
+2. npm (v6.14.0 or higher) 
+3. Python (v3.8 or higher)
+4. pip (latest version)
+5. Git
+
+To check if you have these installed:
+$ node -v
+$ npm -v
+$ python --version
+$ pip --version
+$ git --version
+
+===============================
+## STEP 1: CLONE THE REPOSITORY
+===============================
+
+$ git clone https://github.com/your-username/securenet.git
+$ cd securenet
+
+===============================
+## STEP 2: BACKEND SETUP
+===============================
+
+# Create and activate a virtual environment
+$ python -m venv venv
+$ source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install backend dependencies
+$ pip install -r requirements.txt
+
+# If requirements.txt is not available, install these packages:
+$ pip install django
+$ pip install djangorestframework
+$ pip install django-cors-headers
+$ pip install psycopg2-binary  # For PostgreSQL support
+$ pip install gunicorn  # For deployment
+$ pip install python-dotenv  # For environment variables
+
+# Create a .env file for backend configuration
+$ touch backend/.env
+# Add the following to the .env file:
+# SECRET_KEY=your_secret_key
+# DEBUG=True
+# DATABASE_URL=sqlite:///db.sqlite3  # Or your database URL
+
+# Run migrations
+$ cd backend
+$ python manage.py migrate
+
+# Create a superuser
+$ python manage.py createsuperuser
+
+# Start the backend server
+$ python manage.py runserver
+
+# The backend should now be running at http://localhost:8000/
+
+===============================
+## STEP 3: FRONTEND SETUP
+===============================
+
+# Navigate to the frontend directory
+$ cd ../frontend
+
+# Install frontend dependencies
+$ npm install
+
+# Key dependencies:
+$ npm install react react-dom
+$ npm install bootstrap@5.3.0
+$ npm install bootstrap-icons
+$ npm install axios
+$ npm install react-toastify
+
+# Create a .env file for frontend configuration
+$ touch .env
+# Add the following to the .env file:
+# REACT_APP_API_URL=http://localhost:8000/api
+
+# Start the frontend development server
+$ npm start
+
+# The frontend should now be running at http://localhost:3000/
+
+===============================
+## STEP 4: CONFIGURATION
+===============================
+
+## Backend Configuration Options:
+
+1. Edit backend/settings.py to configure:
+   - Database settings
+   - CORS settings
+   - Authentication settings
+   - File paths for monitoring
+
+2. Edit monitor_config.json to specify directories to monitor:
+   ```json
+   {
+     "directories": [
+       {
+         "name": "Documents",
+         "path": "/path/to/documents"
+       },
+       {
+         "name": "Downloads",
+         "path": "/path/to/downloads"
+       }
+     ]
+   }

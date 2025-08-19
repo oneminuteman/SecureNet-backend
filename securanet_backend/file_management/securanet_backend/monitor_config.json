@@ -1,0 +1,51 @@
+{
+  "mode": "custom",
+  "paths": [
+    "C:\\Users\\ADMIN\\music"
+  ],
+  "last_updated": "2025-08-13 15:09:06",
+  "monitoring": {
+    "exclusions": {
+      "paths": [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/venv/**",
+        "**/__pycache__/**"
+      ],
+      "extensions": [
+        ".log",
+        ".tmp",
+        ".temp",
+        ".cache"
+      ],
+      "size_limits": {
+        "max_file_size_mb": 10
+      }
+    },
+    "change_detection": {
+      "method": "stat",
+      "cache_file_states": true
+    },
+    "log_retention": {
+      "max_records": 1000,
+      "auto_cleanup_enabled": true,
+      "days_to_keep": 3,
+      "cleanup_interval_hours": 12
+    },
+    "api": {
+      "max_logs_per_page": 50,
+      "pagination_enabled": true
+    }
+  },
+  "performance": {
+    "resources": {
+      "max_threads": 2,
+      "scan_interval_seconds": 1
+    }
+  },
+  "excludes": [
+    "C:/Windows",
+    "C:/Program Files",
+    "C:/Program Files (x86)"
+  ]
+}
