@@ -61,7 +61,7 @@ class LogCleanupManager:
         logger.info("Starting automatic log cleanup")
         
         try:
-            from myapp.models import FileChangeLog, FileAnalysis
+            from file_management.models import FileChangeLog, FileAnalysis
             import time
             
             start_time = time.time()
@@ -145,7 +145,7 @@ class LogCleanupManager:
         """Perform an emergency cleanup to drastically reduce log volume"""
         from django.db import connection
         from django.utils import timezone
-        from myapp.models import FileChangeLog, FileAnalysis
+        from file_management.models import FileChangeLog, FileAnalysis
         import datetime
         
         try:

@@ -24,7 +24,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),                        # Django admin
     path('api/', include('securanet.urls')),                # API routes for securanet app
-    path('api/', include('phishing_detection.urls')),       # API routes for phishing detection app
+    path('api/file-management/', include('file_management.urls')),
+    # path('api/', include('phishing_detection.urls')),       # API routes for phishing detection app
     path('', include('securanet.urls')),                    # Root goes to securanet
 
     # API documentation

@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING("⚠️ No change detection configuration found"))
                 
             # Check recent logs
-            from myapp.models import FileChangeLog
+            from file_management.models import FileChangeLog
             recent_logs = FileChangeLog.objects.order_by('-timestamp')[:5]
             
             self.stdout.write("\nRecent file events:")

@@ -9,7 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'securanet_backend.settings')
 django.setup()
 
 from django.db import connection
-from myapp.models import FileChangeLog, FileAnalysis
+from file_management.models import FileChangeLog, FileAnalysis
 
 def purge_logs(keep_count=500):
     """Aggressively purge logs to keep only the specified number"""

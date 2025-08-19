@@ -7,6 +7,9 @@ Django==5.2.4
 djangorestframework>=3.14.0
 django-cors-headers==4.7.0
 
+# --- API Documentation ---
+drf-yasg>=1.21.8
+
 # --- Development Utilities ---
 watchdog>=3.0.0          # Auto-reload / file monitoring
 python-decouple>=3.8     # Environment variable management

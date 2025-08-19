@@ -6,9 +6,12 @@ import signal
 import json
 import datetime
 
+# Add this at the top to get the parent directory
+PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def load_config():
     """Load monitoring configuration"""
-    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'monitor_config.json')
+    config_file = os.path.join(PARENT_DIR, 'monitor_config.json')
     default_config = {
         'mode': 'custom',
         'paths': [os.path.expanduser('~/Documents'),
@@ -47,7 +50,7 @@ def main():
         config['paths'] = paths
         
         # Save updated config
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'monitor_config.json')
+        config_file = os.path.join(PARENT_DIR, 'monitor_config.json')
         with open(config_file, 'w') as f:
             json.dump(config, f, indent=2)
     
@@ -69,20 +72,20 @@ def main():
     processes = []
     
     try:
-        # Start the Django server in a separate process
+        # Start the Django server in a separate process - using correct path
         print("🌐 Starting API server...")
         django_process = subprocess.Popen([
-            sys.executable, 'manage.py', 'runserver'
+            sys.executable, os.path.join(PARENT_DIR, 'manage.py'), 'runserver'
         ])
         processes.append(django_process)
         
         # Give Django server time to start
         time.sleep(2)
         
-        # Start the file monitor in a separate process
+        # Start the file monitor in a separate process - using correct path
         print("🔍 Starting file monitor...")
         monitor_process = subprocess.Popen([
-            sys.executable, 'manage.py', 'runmonitor',
+            sys.executable, os.path.join(PARENT_DIR, 'manage.py'), 'runmonitor',
             '--lightweight-startup'  # Start with lightweight monitoring
         ])
         processes.append(monitor_process)
