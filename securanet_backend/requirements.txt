@@ -66,3 +66,13 @@ asgiref==3.9.1
 sqlparse==0.5.3
 tzdata==2025.2
 colorama==0.4.6
+
+# --- Web Scraping & Automation ---
+whois>=0.9.27
+beautifulsoup4>=4.12.0
+bs4>=0.0.2
+webdriver-manager>=4.0.0
+selenium>=4.0.0
+
+# --- JSON Utilities ---
+jsonfield>=3.1.0
