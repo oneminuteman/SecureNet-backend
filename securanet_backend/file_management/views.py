@@ -17,12 +17,20 @@ from django.views.decorators.cache import never_cache
 from rest_framework.pagination import PageNumberPagination
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required, permission_required
 import subprocess
 import sys
 from .file_monitor.watcher import get_monitor_thread, stop_monitor, ensure_single_monitor
 
 logger = logging.getLogger(__name__)
+
+@require_GET
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    """Return a fresh CSRF cookie and token for API clients"""
+    return JsonResponse({"detail": "CSRF cookie set"})
 
 class FileChangeLogListView(viewsets.ModelViewSet):
     queryset = FileChangeLog.objects.all().order_by('-timestamp')
